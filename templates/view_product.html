@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .product-container {
+            margin-top: 50px;
+        }
+        .product-image {
+            max-width: 100%;
+            height: auto;
+        }
+        .btn-back {
+            margin-top: 20px;
+        }
+        .recommendation-section {
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container product-container">
+        <h2 class="text-center">{{ product.name }}</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <img src="{{ product.image_url }}" class="product-image" alt="{{ product.name }}">
+            </div>
+            <div class="col-md-6">
+                <h5>Description</h5>
+                <p>{{ product.description }}</p>
+                <h5>Category</h5>
+                <p>{{ product.category }}</p>
+                <h5>Price</h5>
+                <p>${{ product.price }}</p>
+                <a href="{{ url_for('products') }}" class="btn btn-primary btn-back">Back to Products</a>
+            </div>
+        </div>
+
+        <!-- Recommended Products Section -->
+<!-- AI Based Recommendations -->
+<div class="recommendation-section">
+    <h3 class="text-center">Recommended for You</h3>
+    <div class="row">
+        {% if recommended %}
+            {% for product in recommended %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description }}</p>
+                            <a href="{{ url_for('view_product', product_id=product.id) }}" class="btn btn-primary">View Product</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center">
+                <p>No recommendations available at this time.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script>
+        // Additional scripts can be added here if necessary
+    </script>
+</body>
+</html>

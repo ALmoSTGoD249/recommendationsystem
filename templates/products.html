@@ -65,65 +65,68 @@
             </div>
         </div>
 
-        <!-- AI Based Recommendations -->
-        <div class="recommendation-section">
-            <h3 class="text-center">Recommended for You</h3>
-            <div class="row">
-                {% for product in recommended %}
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ product.name }}</h5>
-                                <p class="card-text">{{ product.description }}</p>
-                                <a href="{{ url_for('view_product', product_id=product.id) }}" class="btn btn-primary">View Product</a>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-
         <!-- Product List -->
         <div class="product-list">
-            <h3 class="text-center">All Products</h3>
+            <h3 class="text-center">Search Results</h3>
             <div class="row">
-                {% for product in products %}
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ product.name }}</h5>
-                                <p class="card-text">{{ product.description }}</p>
-                                <a href="{{ url_for('view_product', product_id=product.id) }}" class="btn btn-primary">View Product</a>
+                {% if products %}
+                    {% for product in products %}
+                        <div class="col-md-4">
+                            <div class="card mb-4 shadow-sm">
+                                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                    <p class="card-text">{{ product.description }}</p>
+                                    <a href="{{ url_for('view_product', product_id=product.id) }}" class="btn btn-primary">View Product</a>
+                                </div>
                             </div>
                         </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center">
+                        <p>No products found for your search.</p>
                     </div>
-                {% endfor %}
+                {% endif %}
             </div>
         </div>
-    </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- AI Based Recommendations -->
+<div class="recommendation-section">
+    <h3 class="text-center">Recommended for You</h3>
+    <div class="row">
+        {% if recommended %}
+            {% for product in recommended %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description }}</p>
+                            <a href="{{ url_for('view_product', product_id=product.id) }}" class="btn btn-primary">View Product</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center">
+                <p>No recommendations available at this time.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#search').on('input', function() {
                 const query = $(this).val();
                 if (query) {
-                    $.get('/search_suggestions', { query: query }, function(data) {
-                        $('#suggestions').empty();
-                        if (data.results.length || data.recommendations.length) {
-                            data.results.forEach(function(product) {
-                                $('#suggestions').append(`<div class="suggestion-item">${product.name}</div>`);
-                            });
-                            data.recommendations.forEach(function(product) {
-                                $('#suggestions').append(`<div class="suggestion-item">${product.name} (Recommended)</div>`);
-                            });
-                            $('#suggestions').show();
-                        } else {
-                            $('#suggestions').hide();
-                        }
+                    $.getJSON('/search_suggestions', { query: query }, function(data) {
+                        $('#suggestions').empty().show();
+                        data.results.forEach(function(item) {
+                            $('#suggestions').append('<div class="suggestion-item">' + item.name + '</div>');
+                        });
                     });
                 } else {
                     $('#suggestions').hide();
@@ -133,13 +136,11 @@
             $(document).on('click', '.suggestion-item', function() {
                 $('#search').val($(this).text());
                 $('#suggestions').hide();
-                $('#search-btn').click(); // Trigger search
             });
 
-            $(document).click(function(event) {
-                if (!$(event.target).closest('#search, #suggestions').length) {
-                    $('#suggestions').hide();
-                }
+            $('#search-btn').on('click', function() {
+                const searchTerm = $('#search').val();
+                window.location.href = `/products?search=${searchTerm}`;
             });
         });
     </script>

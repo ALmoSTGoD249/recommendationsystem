@@ -70,7 +70,6 @@ def login():
 
     return render_template('login.html')
 
-
 @app.route('/products', methods=['GET'])
 def products():
     user_id = session.get('user_id')
@@ -84,9 +83,11 @@ def products():
         cursor.execute('SELECT * FROM products')
         product_list = cursor.fetchall()
     
+    # Get recommendations
     recommended_products = get_recommendations(user_id) if user_id else []
 
     return render_template('products.html', products=product_list, recommended=recommended_products)
+
 
 @app.route('/view_product/<int:product_id>')
 def view_product(product_id):
@@ -103,6 +104,7 @@ def view_product(product_id):
 def get_recommendations(user_id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     
+    # Fetch the category of the last viewed product
     cursor.execute('''
         SELECT p.category FROM user_views uv
         JOIN products p ON uv.product_id = p.id
@@ -112,7 +114,7 @@ def get_recommendations(user_id):
     ''', (user_id,))
     
     recent_category = cursor.fetchone()
-    
+
     if recent_category:
         cursor.execute('''
             SELECT * FROM products 
@@ -122,9 +124,11 @@ def get_recommendations(user_id):
             LIMIT 4
         ''', (recent_category['category'], user_id))
     else:
+        # If no recent views, return a random selection
         cursor.execute('SELECT * FROM products ORDER BY RAND() LIMIT 4')
     
     return cursor.fetchall()
+
 
 @app.route('/dashboard')
 def dashboard():
