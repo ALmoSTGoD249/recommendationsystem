@@ -59,9 +59,9 @@ def login():
         
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
-        account = cursor.fetchone()
+        account = cursor.fetchone()  # Use cursor.fetchone() instead of db.execute
 
-        if account and check_password_hash(account['password_hash'], password):
+        if account and check_password_hash(account['password'], password):
             session['user_id'] = account['id']
             flash('Login successful!', 'success')
             return redirect(url_for('products'))  # Redirect to products page
@@ -69,6 +69,7 @@ def login():
             flash('Invalid credentials!', 'danger')
 
     return render_template('login.html')
+
 
 @app.route('/products', methods=['GET'])
 def products():
