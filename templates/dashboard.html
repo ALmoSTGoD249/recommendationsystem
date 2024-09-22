@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Welcome to Your Dashboard</h2>
+        <hr>
+
+        <!-- Recommended Products Section -->
+        <div class="mt-4">
+            <h3 class="text-center">Recommended for You</h3>
+            <div class="row">
+                {% if recommended_products %}
+                    {% for product in recommended_products %}
+                        <div class="col-md-3">
+                            <div class="card mb-4">
+                                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                    <p class="card-text">{{ product.description }}</p>
+                                    <p class="card-text"><strong>Price:</strong> ₹{{ product.price }}</p>
+                                    <a href="{{ url_for('view_product', product_id=product.id) }}" class="btn btn-primary btn-block">View Product</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center">No recommendations available at this time. Please browse more products!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
