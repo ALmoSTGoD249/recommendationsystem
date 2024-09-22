@@ -24,16 +24,16 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST' and all(field in request.form for field in ('name', 'email', 'password')):
-        name = request.form['name']
+        username = request.form['name']  # Store form input 'name' as 'username'
         email = request.form['email']
         password = request.form['password']
 
         # Input validation
         if not re.match(r'[^@]+@[^@]+\.[^@]+', email):
             flash('Invalid email address!', 'danger')
-        elif not re.match(r'[A-Za-z0-9]+', name):
-            flash('Name must contain only characters and numbers!', 'danger')
-        elif not name or not email or not password:
+        elif not re.match(r'[A-Za-z0-9]+', username):  # Use 'username' in regex validation
+            flash('Username must contain only characters and numbers!', 'danger')
+        elif not username or not email or not password:
             flash('Please fill out the form!', 'danger')
         else:
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -44,7 +44,7 @@ def register():
                 flash('Account already exists!', 'danger')
             else:
                 hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-                cursor.execute('INSERT INTO users (name, email, password) VALUES (%s, %s, %s)', (name, email, hashed_password))
+                cursor.execute('INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)', (username, email, hashed_password))
                 mysql.connection.commit()
                 flash('You have successfully registered!', 'success')
                 return redirect(url_for('login'))  # Redirect to login page
@@ -61,7 +61,7 @@ def login():
         cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
         account = cursor.fetchone()
 
-        if account and check_password_hash(account['password'], password):
+        if account and check_password_hash(account['password_hash'], password):
             session['user_id'] = account['id']
             flash('Login successful!', 'success')
             return redirect(url_for('products'))  # Redirect to products page
@@ -148,7 +148,6 @@ def search_suggestions():
         'results': results,
         'recommendations': recommendations
     }
-
 
 @app.route('/logout')
 def logout():
